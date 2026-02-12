@@ -9,9 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "js-yaml": "^4.1.1",
+    "json2csv": "^6.0.0-alpha.2",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
