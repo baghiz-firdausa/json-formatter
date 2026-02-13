@@ -5,13 +5,6 @@ import React, { useState } from 'react';
 type JsonValue = string | number | boolean | null | JsonObject | Array<JsonValue>;
 interface JsonObject { [key: string]: JsonValue; }
 
-// interface TreeNode {
-//     key: string;
-//     value: JsonValue;
-//     type: string;
-//     isExpanded?: boolean;
-// }
-
 interface TreeViewProps {
     data: JsonValue | null;
     theme?: 'light' | 'dark';

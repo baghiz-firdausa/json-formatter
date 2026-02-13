@@ -13,6 +13,8 @@ interface ToolbarProps {
     onLoadSample: (sample: string) => void;
     onLoadUrl: (url: string) => void;
     onThemeToggle: () => void;
+    isWideMode: boolean;
+    onWideModeToggle: () => void;
     theme: 'light' | 'dark';
     isValid: boolean;
 }
@@ -27,6 +29,8 @@ export default function Toolbar({
     onLoadSample,
     onLoadUrl,
     onThemeToggle,
+    isWideMode,
+    onWideModeToggle,
     theme,
     isValid
 }: ToolbarProps) {
@@ -135,7 +139,14 @@ export default function Toolbar({
 
                 <div style={{ flex: 1 }} />
 
-                {/* Theme Toggle */}
+                {/* Layout Controls */}
+                <button
+                    onClick={onWideModeToggle}
+                    className="btn btn-ghost btn-sm"
+                    title={isWideMode ? "Exit Full Width" : "Enter Full Width"}
+                >
+                    {isWideMode ? '🤏' : '↔️'}
+                </button>
                 <button onClick={onThemeToggle} className="btn btn-ghost btn-sm">
                     {theme === 'dark' ? '☀️' : '🌙'}
                 </button>

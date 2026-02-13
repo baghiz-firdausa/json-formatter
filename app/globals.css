@@ -153,6 +153,11 @@ p {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 var(--space-lg);
+  transition: max-width var(--transition-slow);
+}
+
+.container.wide-mode {
+  max-width: 100%;
 }
 
 .flex {
@@ -347,6 +352,117 @@ p {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-tertiary);
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+  transition: grid-template-columns var(--transition-base);
+  width: 100%;
+}
+
+.main-content.output-minimized {
+  grid-template-columns: minmax(0, 1fr) 60px;
+}
+
+.main-content.input-minimized {
+  grid-template-columns: 60px minmax(0, 1fr);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  min-height: 32px;
+}
+
+.minimize-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.minimize-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.input-panel,
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  transition: all var(--transition-base);
+}
+
+.input-panel.minimized,
+.output-panel.minimized {
+  padding: var(--space-md) var(--space-xs);
+  align-items: center;
+}
+
+.input-panel.minimized h3,
+.input-panel.minimized .editor-wrapper,
+.output-panel.minimized .tab-panel {
+  display: none !important;
+}
+
+.minimized-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-top: var(--space-md);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.minimized-label:hover {
+  color: var(--color-accent-primary);
+}
+
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--color-bg-primary);
+  z-index: 2000;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.fullscreen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.fullscreen-content {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Responsive */

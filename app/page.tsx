@@ -19,11 +19,34 @@ export default function Home() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [validationResult, setValidationResult] = useState({ valid: true, error: '' });
   const [notification, setNotification] = useState('');
+  const [isOutputMinimized, setIsOutputMinimized] = useState(false);
+  const [isInputMinimized, setIsInputMinimized] = useState(false);
+  const [isWideMode, setIsWideMode] = useState(false);
+  const [fullscreenPanel, setFullscreenPanel] = useState<'input' | 'output' | null>(null);
 
   // Apply theme to document
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Handle ESC key for fullscreen
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullscreenPanel(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  const toggleInputMinimize = () => {
+    setIsInputMinimized(!isInputMinimized);
+    if (!isInputMinimized) setIsOutputMinimized(false);
+  };
+
+  const toggleOutputMinimize = () => {
+    setIsOutputMinimized(!isOutputMinimized);
+    if (!isOutputMinimized) setIsInputMinimized(false);
+  };
 
   // Auto-validate on input change
   useEffect(() => {
@@ -173,7 +196,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="container" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className={`container ${isWideMode ? 'wide-mode' : ''}`} style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       {/* Header */}
       <header style={{ marginBottom: '32px', textAlign: 'center' }}>
         <h1 style={{
@@ -201,6 +224,8 @@ export default function Home() {
         onLoadSample={handleLoadSample}
         onLoadUrl={handleLoadUrl}
         onThemeToggle={handleThemeToggle}
+        isWideMode={isWideMode}
+        onWideModeToggle={() => setIsWideMode(!isWideMode)}
         theme={theme}
         isValid={validationResult.valid}
       />
@@ -222,46 +247,92 @@ export default function Home() {
       )}
 
       {/* Main Content - Split Panel */}
-      <div
-        className="main-content"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '20px',
-          marginBottom: '20px'
-        }}
-      >
+      <div className={`main-content ${isOutputMinimized ? 'output-minimized' : isInputMinimized ? 'input-minimized' : ''}`}>
         {/* Input Panel */}
-        <div className="input-panel">
-          <h3 style={{ marginBottom: '12px', fontSize: '18px' }}>
-            📝 Input JSON
-          </h3>
-          <JsonEditor
-            value={inputJson}
-            onChange={setInputJson}
-            theme={theme}
-            height="500px"
-          />
+        <div className={`input-panel card ${isInputMinimized ? 'minimized' : ''}`}>
+          <div className="panel-header">
+            {!isInputMinimized && (
+              <h3 style={{ margin: 0, fontSize: '18px' }}>
+                📝 Input JSON
+              </h3>
+            )}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                onClick={() => setFullscreenPanel('input')}
+                className="minimize-btn"
+                title="Fullscreen Input"
+              >
+                ⛶
+              </button>
+              <button
+                onClick={toggleInputMinimize}
+                className="minimize-btn"
+                title={isInputMinimized ? "Expand Panel" : "Minimize Panel"}
+              >
+                {isInputMinimized ? '▶️' : '◀️'}
+              </button>
+            </div>
+          </div>
+
+          {isInputMinimized ? (
+            <div className="minimized-label" onClick={() => setIsInputMinimized(false)}>
+              INPUT PANEL
+            </div>
+          ) : (
+            <JsonEditor
+              value={inputJson}
+              onChange={setInputJson}
+              theme={theme}
+              height="500px"
+            />
+          )}
         </div>
 
         {/* Output Panel */}
-        <div className="output-panel">
-          <h3 style={{ marginBottom: '12px', fontSize: '18px' }}>
-            📤 Output
-          </h3>
-          <TabPanel tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
-            {activeTab === 'tree' ? (
-              <TreeView data={parseJson(inputJson)} theme={theme} />
-            ) : (
-              <JsonEditor
-                value={getOutputContent()}
-                onChange={() => { }}
-                readOnly
-                theme={theme}
-                height="500px"
-              />
+        <div className={`output-panel card ${isOutputMinimized ? 'minimized' : ''}`}>
+          <div className="panel-header">
+            {!isOutputMinimized && (
+              <h3 style={{ margin: 0, fontSize: '18px' }}>
+                📤 Output
+              </h3>
             )}
-          </TabPanel>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                onClick={() => setFullscreenPanel('output')}
+                className="minimize-btn"
+                title="Fullscreen Output"
+              >
+                ⛶
+              </button>
+              <button
+                onClick={toggleOutputMinimize}
+                className="minimize-btn"
+                title={isOutputMinimized ? "Expand Panel" : "Minimize Panel"}
+              >
+                {isOutputMinimized ? '◀️' : '▶️'}
+              </button>
+            </div>
+          </div>
+
+          {isOutputMinimized ? (
+            <div className="minimized-label" onClick={() => setIsOutputMinimized(false)}>
+              OUTPUT PANEL
+            </div>
+          ) : (
+            <TabPanel tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
+              {activeTab === 'tree' ? (
+                <TreeView data={parseJson(inputJson)} theme={theme} />
+              ) : (
+                <JsonEditor
+                  value={getOutputContent()}
+                  onChange={() => { }}
+                  readOnly
+                  theme={theme}
+                  height="500px"
+                />
+              )}
+            </TabPanel>
+          )}
         </div>
       </div>
 
@@ -284,6 +355,47 @@ export default function Home() {
           }}
         >
           {notification}
+        </div>
+      )}
+
+      {/* Fullscreen Overlay */}
+      {fullscreenPanel && (
+        <div className="fullscreen-overlay fade-in">
+          <div className="fullscreen-header">
+            <h3 style={{ margin: 0 }}>
+              {fullscreenPanel === 'input' ? '📝 Input JSON (Fullscreen)' : '📤 Output (Fullscreen)'}
+            </h3>
+            <button
+              onClick={() => setFullscreenPanel(null)}
+              className="btn btn-secondary btn-sm"
+            >
+              Close (ESC)
+            </button>
+          </div>
+          <div className="fullscreen-content">
+            {fullscreenPanel === 'input' ? (
+              <JsonEditor
+                value={inputJson}
+                onChange={setInputJson}
+                theme={theme}
+                height="100%"
+              />
+            ) : (
+              <TabPanel tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
+                {activeTab === 'tree' ? (
+                  <TreeView data={parseJson(inputJson)} theme={theme} />
+                ) : (
+                  <JsonEditor
+                    value={getOutputContent()}
+                    onChange={() => { }}
+                    readOnly
+                    theme={theme}
+                    height="100%"
+                  />
+                )}
+              </TabPanel>
+            )}
+          </div>
         </div>
       )}
 
